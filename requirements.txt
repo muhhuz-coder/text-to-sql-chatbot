@@ -10,5 +10,5 @@ uvicorn
 streamlit
 tqdm
 sentence-transformers
-torch --index-url https://download.pytorch.org/whl/cpu
+torch
 transformers
