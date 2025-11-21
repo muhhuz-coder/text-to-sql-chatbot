@@ -1,9 +1,8 @@
 from typing import TypedDict, List, Any
-from langchain_community.vectorstores import Chroma
 from langchain_core.prompts import PromptTemplate
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
-from langchain_community.embeddings.huggingface import HuggingFaceEmbeddings
+from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
 import os
 import re

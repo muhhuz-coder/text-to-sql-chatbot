@@ -1,0 +1,12 @@
+langchain
+langchain-huggingface
+langchain-chroma
+langchain-google-genai
+python-dotenv
+chromadb
+sqlglot
+fastapi
+uvicorn
+streamlit
+requests
+tqdm
