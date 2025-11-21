@@ -64,8 +64,40 @@ This project implements a Retrieval-Augmented Generation (RAG) system that conve
 - `app.py`: Streamlit frontend
 - `sample_db/create_sample_db.py`: Sample data creation
 
-## Notes
+## Deployment
 
-- The system generates read-only SELECT queries only.
-- SQL validation ensures only allowed tables are queried.
-- For production, consider incremental embeddings and background updates.
+### Local with Docker
+1. Build and run with Docker Compose:
+   ```bash
+   docker-compose up --build
+   ```
+2. Access:
+   - FastAPI: http://localhost:8000
+   - Streamlit: http://localhost:8501
+
+### Cloud Deployment
+#### Option 1: Railway (Free tier available)
+1. Push your code to GitHub.
+2. Go to [Railway.app](https://railway.app), connect your GitHub repo.
+3. Set environment variables in Railway dashboard.
+4. Deploy – it will auto-detect Python and run.
+
+#### Option 2: Render
+1. Push to GitHub.
+2. Go to [Render.com](https://render.com), create a new Web Service from GitHub.
+3. Set build command: `pip install -r requirements.txt`
+4. Set start command: `uvicorn server.api:app --host 0.0.0.0 --port $PORT`
+5. For Streamlit, deploy separately to Streamlit Cloud.
+
+#### Option 3: Streamlit Cloud (for frontend only)
+1. Push to GitHub.
+2. Go to [share.streamlit.io](https://share.streamlit.io), connect repo.
+3. Set main file to `app.py`.
+4. Add secrets for environment variables.
+
+### Environment Variables
+Set these in your deployment platform's environment settings:
+- `GOOGLE_APPLICATION_CREDENTIALS`: Path to your service account JSON (upload as secret or file).
+- `SQLITE_PATH`, `CHROMA_DIR`, etc.
+
+For production, consider using a persistent database like PostgreSQL instead of SQLite.

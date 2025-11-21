@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+      - "8501:8501"
+    volumes:
+      - ./sample_db:/app/sample_db
+      - ./chroma_persist:/app/chroma_persist
+      - ./.env:/app/.env
+    environment:
+      - SQLITE_PATH=sample_db/sample.db
+      - CHROMA_DIR=./chroma_persist
+    command: sh -c "python3 sample_db/create_sample_db.py && python3 main.py && uvicorn server.api:app --host 0.0.0.0 --port 8000 & streamlit run app.py --server.port 8501 --server.address 0.0.0.0"
