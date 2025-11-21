@@ -10,3 +10,4 @@ uvicorn
 streamlit
 requests
 tqdm
+sentence-transformers
