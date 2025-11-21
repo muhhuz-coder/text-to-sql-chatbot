@@ -11,3 +11,5 @@ streamlit
 requests
 tqdm
 sentence-transformers
+torch
+transformers
