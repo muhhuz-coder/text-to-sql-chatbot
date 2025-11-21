@@ -1,4 +1,4 @@
-langchain
+langchain-core
 langchain-huggingface
 langchain-chroma
 langchain-google-genai
@@ -8,7 +8,6 @@ sqlglot
 fastapi
 uvicorn
 streamlit
-requests
 tqdm
 sentence-transformers
 torch
