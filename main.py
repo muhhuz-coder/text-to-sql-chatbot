@@ -52,15 +52,20 @@ def index_table(conn, table):
 
 def main():
     """Main indexing pipeline."""
+    if not os.path.exists(SQLITE_PATH):
+        raise FileNotFoundError(
+            f"database not found at {SQLITE_PATH!r}; run create_sample_db.py first"
+        )
     conn = sqlite3.connect(SQLITE_PATH)
-    cur = conn.cursor()
-    cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
-    tables = [t[0] for t in cur.fetchall()]
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
+        tables = [t[0] for t in cur.fetchall()]
 
-    for t in tqdm(tables, desc="Indexing tables"):
-        index_table(conn, t)
-
-    conn.close()
+        for t in tqdm(tables, desc="Indexing tables"):
+            index_table(conn, t)
+    finally:
+        conn.close()
     print("Indexing complete and persisted in Chroma.")
 
 if __name__ == "__main__":
