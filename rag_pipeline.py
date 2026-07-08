@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 import os
 import re
 import asyncio
+import logging
+
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -63,6 +66,7 @@ async def sql_generator_node(state: RAGState) -> RAGState:
     if match:
         out = match.group(1).strip()
     else:
+        logger.warning("LLM output contained no SELECT statement: %r", out)
         out = ""
     out = out.rstrip(";").strip()
     state["generated_sql"] = out

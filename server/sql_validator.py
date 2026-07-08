@@ -5,6 +5,8 @@ DISALLOWED = {"delete", "update", "insert", "drop", "alter", "create", "truncate
 ALLOWED_STATEMENTS = {"select"}
 
 def validate_sql(sql: str, allowed_tables: Set[str]) -> Tuple[bool, str]:
+    if not sql or not sql.strip():
+        return False, "no SQL was generated"
     if ";" in sql:
         return False, "semicolon or multiple statements not allowed"
     for kw in DISALLOWED:
@@ -19,17 +21,20 @@ def validate_sql(sql: str, allowed_tables: Set[str]) -> Tuple[bool, str]:
     if parsed.key.lower() not in ALLOWED_STATEMENTS:
         return False, "only SELECT statements allowed"
 
-    tables = extract_tables(sql)
+    try:
+        tables = extract_tables(parsed)
+    except Exception as e:
+        return False, f"could not determine tables referenced: {e}"
+
     if not tables.issubset(allowed_tables):
         return False, f"disallowed tables used: {tables - allowed_tables}"
     return True, "ok"
 
-def extract_tables(sql: str) -> Set[str]:
-    try:
-        parsed = sqlglot.parse_one(sql, read="sqlite")
-        tables = set()
-        for table in parsed.find_all(sqlglot.exp.Table):
-            tables.add(table.name)
-        return tables
-    except:
-        return set()
+def extract_tables(parsed: sqlglot.exp.Expression) -> Set[str]:
+    """Collect the table names referenced by an already-parsed expression.
+
+    A parse failure here would previously be swallowed and reported as "no
+    tables", which silently bypassed the allow-list check. Errors are now
+    surfaced to the caller instead.
+    """
+    return {table.name for table in parsed.find_all(sqlglot.exp.Table)}
