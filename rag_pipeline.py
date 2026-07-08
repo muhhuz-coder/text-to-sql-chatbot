@@ -1,14 +1,11 @@
-from typing import TypedDict, List, Any
+from typing import TypedDict, List
 from langchain_core.prompts import PromptTemplate
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_chroma import Chroma
 from langchain_google_genai import ChatGoogleGenerativeAI
-from dotenv import load_dotenv
-import os
 import re
 import asyncio
 
-load_dotenv()
+from config import TOP_K
+from vectorstore import build_vectorstore
 
 # State type
 class RAGState(TypedDict, total=False):
@@ -20,13 +17,7 @@ class RAGState(TypedDict, total=False):
     messages: List[dict]
 
 # Init vectorstore & models
-CHROMA_DIR = os.getenv("CHROMA_DIR", "./chroma_persist")
-EMBED_MODEL = os.getenv("EMBED_MODEL", "text-embedding-3-small")
-LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4o-mini")
-TOP_K = int(os.getenv("TOP_K", "8"))
-
-embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
-vectordb = Chroma(persist_directory=CHROMA_DIR, embedding_function=embeddings, collection_name="sqlite_docs")
+vectordb = build_vectorstore()
 retriever = vectordb.as_retriever(search_kwargs={"k": TOP_K})
 
 llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0)

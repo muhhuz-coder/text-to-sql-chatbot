@@ -1,10 +1,9 @@
-import sqlite3
-from typing import Set
+"""Backwards-compatible re-export of the shared SQLite helpers.
 
-def allowed_tables_from_db(db_path: str) -> Set[str]:
-    conn = sqlite3.connect(db_path)
-    cur = conn.cursor()
-    cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
-    tables = {t[0] for t in cur.fetchall()}
-    conn.close()
-    return tables
+The implementation now lives in the top-level :mod:`db` module so it can be
+shared with the indexing script; this module is kept so existing imports of
+``server.utils`` continue to work.
+"""
+from db import allowed_tables_from_db
+
+__all__ = ["allowed_tables_from_db"]

@@ -55,6 +55,9 @@ This project implements a Retrieval-Augmented Generation (RAG) system that conve
 
 ## Files
 
+- `config.py`: Centralized environment/configuration loading
+- `vectorstore.py`: Shared embedding model and Chroma vector store factory
+- `db.py`: Shared SQLite connection and table-listing helpers
 - `main.py`: Database indexing script
 - `rag_pipeline.py`: Core RAG pipeline (retriever and SQL generator)
 - `server/api.py`: FastAPI backend
