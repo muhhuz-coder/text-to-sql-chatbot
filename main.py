@@ -1,34 +1,25 @@
-import os
-import sqlite3
 import hashlib
+import sqlite3
+
 from tqdm import tqdm
-from dotenv import load_dotenv
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_chroma import Chroma
-# Load environment variables
-load_dotenv()
-SQLITE_PATH = os.getenv("SQLITE_PATH", "sample_db/sample.db")
-CHROMA_DIR = os.getenv("CHROMA_DIR", "./chroma_persist")
-EMBED_MODEL = os.getenv("EMBED_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
 
-# ✅ Initialize HuggingFace embedding model
-embeddings = HuggingFaceEmbeddings(model_name=EMBED_MODEL)
-print(f"Using embedding model:",embeddings)
+from config import SQLITE_PATH
+from db import list_tables
+from vectorstore import build_vectorstore
 
-# ✅ Create / Load Chroma vector store
-vectorstore = Chroma(
-    collection_name="sqlite_docs",
-    persist_directory=CHROMA_DIR,
-    embedding_function=embeddings
-)
+# Create / load the shared Chroma vector store
+vectorstore = build_vectorstore()
+
 
 def row_hash(values):
     """Generate unique hash for a row."""
     return hashlib.sha256("|".join(map(str, values)).encode()).hexdigest()
 
+
 def row_to_text(table, cols, row):
     """Convert SQLite row into a readable text chunk."""
     return f"Table: {table}\n" + "\n".join([f"{c}: {v}" for c, v in zip(cols, row)])
+
 
 def index_table(conn, table):
     """Index a single table into the vector store."""
@@ -50,18 +41,18 @@ def index_table(conn, table):
     # Add to Chroma vector store
     vectorstore.add_texts(texts=docs, metadatas=metas, ids=ids)
 
+
 def main():
     """Main indexing pipeline."""
     conn = sqlite3.connect(SQLITE_PATH)
-    cur = conn.cursor()
-    cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
-    tables = [t[0] for t in cur.fetchall()]
+    tables = list_tables(conn)
 
     for t in tqdm(tables, desc="Indexing tables"):
         index_table(conn, t)
 
     conn.close()
     print("Indexing complete and persisted in Chroma.")
+
 
 if __name__ == "__main__":
     main()

@@ -1,16 +1,13 @@
-import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from dotenv import load_dotenv
 
 # Import the core RAG components
+from config import SQLITE_PATH
 from rag_pipeline import retriever_node, sql_generator_node
 from server.sql_validator import validate_sql
 from server.executor import execute_sql
 from server.utils import allowed_tables_from_db
 
-load_dotenv()
-SQLITE_PATH = os.getenv("SQLITE_PATH", "sample_db/sample.db")
 ALLOWED_TABLES = allowed_tables_from_db(SQLITE_PATH)
 
 app = FastAPI(title="RAG Text->SQL API")

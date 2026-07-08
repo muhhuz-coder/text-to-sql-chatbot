@@ -19,7 +19,7 @@ def validate_sql(sql: str, allowed_tables: Set[str]) -> Tuple[bool, str]:
     if parsed.key.lower() not in ALLOWED_STATEMENTS:
         return False, "only SELECT statements allowed"
 
-    tables = extract_tables(sql)
+    tables = _tables_from_parsed(parsed)
     if not tables.issubset(allowed_tables):
         return False, f"disallowed tables used: {tables - allowed_tables}"
     return True, "ok"
@@ -27,9 +27,9 @@ def validate_sql(sql: str, allowed_tables: Set[str]) -> Tuple[bool, str]:
 def extract_tables(sql: str) -> Set[str]:
     try:
         parsed = sqlglot.parse_one(sql, read="sqlite")
-        tables = set()
-        for table in parsed.find_all(sqlglot.exp.Table):
-            tables.add(table.name)
-        return tables
-    except:
+    except Exception:
         return set()
+    return _tables_from_parsed(parsed)
+
+def _tables_from_parsed(parsed: sqlglot.exp.Expression) -> Set[str]:
+    return {table.name for table in parsed.find_all(sqlglot.exp.Table)}
